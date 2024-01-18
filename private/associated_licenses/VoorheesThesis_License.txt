@@ -1,0 +1,20 @@
+To properly administer this SMARTech repository and preserve the contents for future use, Georgia Institute of Technology (“GT”) and Georgia Tech Research Corporation (“GTRC”) require certain permissions from you, the author/copyright owner of your thesis or dissertation. This permission is necessary to ensure that your thesis or dissertation can be preserved and shared as part of the scholarly record of degrees awarded by GT.
+
+By agreeing to this license and depositing your thesis or dissertation in SMARTech, you do not give up the copyright to your work and you do not give up the right to submit the work to publishers or share it with other repositories or individuals. By agreeing to this license, you grant to GT and GTRC the perpetual, irrevocable, non-exclusive right, with right to sublicense, to preserve, reproduce, modify (as defined below) and/or distribute your thesis or dissertation (including the metadata and abstract) worldwide, in any format or medium for non-commercial, research, educational, or related academic purposes. You also authorize GT and GTRC to allow users of the repository to distribute your thesis or dissertation (including the metadata and abstract) worldwide, in any format or medium for the same non-commercial, research, educational, or related academic purposes. GT and/or GTRC will clearly identify your name as the author of the submission, and will not make any alteration, other than as allowed by this license, to your submission.
+
+You agree that GT and/or GTRC may, without changing the content, modify or adjust your thesis or dissertation to any medium or technological format and keep more than one copy for the purposes of security, back up and long-term preservation. 
+
+You represent and warrant that the thesis or dissertation is your original work and that you have the right to grant the rights contained in this license. You also represent and warrant that your submission does not, to the best of your knowledge, infringe upon any copyright. You also represent and warrant that the thesis or dissertation contains no libelous or other unlawful matter and makes no improper invasion of the privacy of any other person and that the work you submit is classified as Category I according to GT Data Classification policies.
+
+If the submission contains third-party materials (quotations, images, graphs, photographs, audio or video files, other excerpts, etc.) for which you do not hold copyright, you represent that you have obtained the unrestricted permission of the copyright owner to grant the GT and GTRC the rights required by this license, or that you have undertaken a responsible fair use analysis and concluded that inclusion of such third party materials meets fair use standards. You further represent that all third-party material is clearly identified and acknowledged in your thesis or dissertation.</b>
+
+IF THE SUBMISSION IS BASED UPON WORK THAT HAS BEEN SPONSORED OR SUPPORTED BY AN AGENCY OR ORGANIZATION OTHER THAN GT OR GTRC, SUCH AS THE NATIONAL INSTITUTES OF HEALTH, THE NATIONAL SCIENCE FOUNDATION, OR PRIVATE FUNDER, YOU REPRESENT THAT YOU HAVE FULFILLED ANY RIGHT OF REVIEW, CONFIDENTIALITY, OR OTHER OBLIGATIONS REQUIRED BY THAT CONTRACT OR AGREEMENT.
+
+You agree to indemnify and hold harmless the Board of Regents of the University System of Georgia, Georgia Institute of Technology and Georgia Tech Research Corporation and their officers, fellows, governing board members, employees and agents, from and against all claims, actions, suits, damages, liabilities and costs (including, without limitation, reasonable legal fees) arising from or in connection with your submission. 
+
+BY CLICKING "AGREE", I HEREBY CERTIFY THAT I AM 18 YEARS OF AGE OR OLDER AND AGREE TO THE TERMS AND CONDITIONS ABOVE.
+
+
+
+--------------------------------------------------------------------------
+The license above was accepted by Travis Voorhees on 15/11/2020 at 10:12 PM
