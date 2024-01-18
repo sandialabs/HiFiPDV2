@@ -724,15 +724,6 @@ if exist('SHIFT_SIGN')
     BaseFit.han = tmp(BaseFit.Xf); % do this for plots later
     BASEfft.GAS(3) = tmp.b1; clear tmp
     
-    %{
-    % do a Gaussian fit to all of the data
-    % this will be used in the final plot
-    Reference.Fit = fit([BASEfft.x';BASEfft.x';BASEfft.x'],[BASEfft.ham;BASEfft.blk;BASEfft.han],'gauss1');
-    Reference.Xf = BASEfft.x(1):(0.01*2/Wavelength):BASEfft.x(end);
-    Reference.Xv = Reference.Xf.*(Wavelength/2);
-    Reference.Y  = Reference.Fit(Reference.Xf);
-    Reference.Y = Reference.Y./max(Reference.Y); % normalize
-    %}
     BASEfft.ALL = [BASEfft.MAX BASEfft.CEN BASEfft.GAS];
     SHIFT_AMT = SHIFT_SIGN*mean(BASEfft.ALL)*Wavelength/2; % converted to velocity
     SHIFT_UNC = 1.95*std(BASEfft.ALL)*Wavelength/2;
@@ -1210,14 +1201,6 @@ parfor i = 1:in
     FHAM{1,i}(FHAM{1,i}>=UpCrop)=NaN;
     FB{1,i}(FB{1,i}>=UpCrop)=NaN;
     FHANN{1,i}(FHANN{1,i}>=UpCrop)=NaN;
-    
-    %{
-    % COMMENTED OUT AUGUST 2023, B/C DIDN'T ACCOUNT FOR FREQ SHIFT
-    % Set any value below threshold value (12 m/s) to zero
-    FHAM{1,i}(FHAM{1,i}<0.025) = 0;
-    FB{1,i}(FB{1,i}<0.025) = 0;
-    FHANN{1,i}(FHANN{1,i}<0.025) = 0;
-    %}
 end
 MaxTime = toc(MaxStart); % time to calculate max histories
 
@@ -1255,14 +1238,6 @@ parfor i = 1:in
     FHAM{2,i}(FHAM{2,i}>=UpCrop)=NaN;
     FB{2,i}(FB{2,i}>=UpCrop)=NaN;
     FHANN{2,i}(FHANN{2,i}>=UpCrop)=NaN;
-    
-    %{
-    % COMMENTED OUT AUGUST 2023, B/C DIDN'T ACCOUNT FOR FREQ SHIFT
-    % Set any value below threshold value (12 m/s) to zero
-    FHAM{2,i}(FHAM{2,i}<0.025) = 0;
-    FB{2,i}(FB{2,i}<0.025) = 0;
-    FHANN{2,i}(FHANN{2,i}<0.025) = 0;
-    %}
 end
 CentTime = toc(CentStart); % time to calculate robust centroid histories
 
@@ -1344,14 +1319,6 @@ if RunGauss ==1
         gfb(gfb>UpCrop)=NaN;
         gfhann(gfhann>UpCrop)=NaN;
         
-        % Additional removal of low-amplitude noise?
-        % Commented out August 2023, needed updating for frequency shifting
-        %{
-        %gfham(gfham<0.025) = 0; % anything less than 20 m/s (0.025 GHz) set to zero
-        %gfb(gfb<0.025) = 0;
-        %gfhann(gfhann<0.025) = 0;
-        %}
-        
         % Output history at specified time-resolution
         % Interpolate using a cubic spline, do not include NaN cells
         FHAM{3,i} = gfham;
@@ -1362,59 +1329,6 @@ if RunGauss ==1
 else
 end
 
-
-
-
-%{
-% OLD GAUSSIAN FITTING METHOD, REMOVED AUGUST 2023
-if RunGauss ==1
-    GaussStart = tic;
-    for i = 1:in
-        % Note:  Current implementation of wait bar is deceptive about
-        %        remaining time. Consider changing the 15/85 split to 5/95
-        waitbar(0.15+0.84*(i/in),WB,'Extracting histories: Gaussian Method');
-        % This needs to be made more efficient in future releases
-        % preallocate outputs:
-        gfham = zeros(1,length(t{i})); % gf means Gaussian Fit
-        gfb = zeros(1,length(t{i}));
-        gfhann = zeros(1,length(t{i}));
-        % fit a gaussian with parallel cpu
-        % On a Mac laptop, i9-109880H processor, it takes 1 second per fit
-        parfor m = 1:length(t{i})
-            try
-                gHam = fit(f,zHam{i}(:,m),'gauss1'); % use fitting toolbox
-                gfham(m) = gHam.b1;
-                fwhmHam(i,m) = sqrt(2*log(2))*gHam.c1;
-                gB = fit(f,zB{i}(:,m),'gauss1');
-                gfb(m) = gB.b1;
-                fwhmB(i,m) = sqrt(2*log(2))*gHam.c1;
-                gHann = fit(f,zHann{i}(:,m),'gauss1');
-                gfhann(m) = gHann.b1;
-                fwhmHann(i,m) = sqrt(2*log(2))*gHam.c1;
-            catch % if fit fails, then output NaN (neglected in Heatmap calc)
-                gfham(m) = NaN;
-                gfb(m) = NaN;
-                gfhann(m) = NaN;
-                fwhmHam(i,m) = NaN;
-                fwhmB(i,m) = NaN;
-                fwhmHann(i,m) = NaN;
-            end
-        end
-        % remove negative values
-        gfham(gfham<0.025) = 0; % anything less than 20 m/s (0.025 GHz) set to zero
-        gfb(gfb<0.025) = 0;
-        gfhann(gfhann<0.025) = 0;
-
-        % Output history at specified time-resolution
-        % Interpolate using a cubic spline, do not include NaN cells
-        FHAM{3,i} = gfham;
-        FB{3,i} = gfb;
-        FHANN{3,i} = gfhann;
-    end
-    GaussTime = toc(GaussStart); % time to calculate gaussian histories
-else
-end
-%}
 
 % End the timer and tell the user how long extraction took
 ExtractEnd = toc(ExtractStart);
@@ -1543,16 +1457,6 @@ parfor i = 1:length(tfinal)
     catch
         HistoryGaussianF(i) = NaN;
     end
-    
-    %{ 
-    % old method:
-    try
-        hgf = fit(f,HeatMap(:,i),'gauss1');
-        HistoryGaussianF(i) = hgf.b1;
-    catch
-        HistoryGaussianF(i) = NaN;
-    end
-    %}
 end
 % Remove values that are outside ROI (bad/wrong fits)
 HistoryGaussianF(HistoryGaussianF>UpCrop)=NaN;
@@ -1575,19 +1479,6 @@ AHM = trapz(f,HeatMap); % area of each heatmap column
 AHMmat = cumtrapz(f,HeatMap); % cumulative area of each heatmap column
 AHMmat = AHMmat./max(AHMmat); % normalize so that max area is 1.0
 
-%{
-% Back-up:  brute force calculation if cumulative trapezoidal doesn't work
-% Note:  much slower than cumulative trapezoidal
-AHMmat = zeros(size(HeatMap));
-parfor j = 1:size(HeatMap,1) % vertical position
-    if j == 1
-        AHMmat(j,:) = 0; % first position is zero
-    else
-        AHMmat(j,:) = trapz(Fscale(1:j),HeatMap(1:j,:));
-    end
-end
-AHMmat = AHMmat./AHM; % normalize each column by total area of column
-%}
 
 % Find the 95% confidence interval lower and upper limit
 % To do this, find where cumulative area is 0.025 and 0.975
@@ -1779,15 +1670,7 @@ plot(tfinal,UpUncertV,'color',[0.5 0.5 0.5],'linestyle','-.','LineWidth',1); % 9
 plot(tfinal,LowUncertV,'color',[0.5 0.5 0.5],'linestyle','-.','LineWidth',1); % 95% Conf bound low
 LEG{5} = 'Systematic Uncertainty (95%)';
 LEG = LEG(~cellfun('isempty',LEG)); % remove empty legend cells
-%{
-% REMOVED FEATURE -- subjective, but I think it looked bad
-% Area of uncertainty bounds
-Au = fill(tArea,UncertArea,'k');
-Au.FaceColor = [0.5 0.5 0.5];
-Au.FaceAlpha = 0.5;
-Au.EdgeColor = 'w';
-plot(tfinal,FinalHistory,'color','k') % plot a second time so history is on top
-%}
+
 axis(axlim)
 hold off
 box on
