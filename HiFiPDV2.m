@@ -7,7 +7,8 @@
 %  histories to determine the best fit & uncertainty.
 %
 %  Author:  Travis J. Voorhees, [email: tjvoorh@sandia.gov]
-%  Most recent update:  October 2, 2023
+%  Most recent release:  October 2, 2023
+%  Most recent bug fix:  May 6, 2024
 %
 %  Original HiFiPDV release was on December 12, 2020, embedded in PhD 
 %  thesis and included in the associated copyright (Travis Voorhees 2020).
@@ -66,6 +67,18 @@
 % =========================================================================
 
 %% LATEST RELEASE NOTES:
+% ============================ (May 6, 2024) ===========================
+%  Bug Fixes:
+%   - Replaced range function with max-min to avoid mix-up of the standard 
+%     MATLAB range function with the Communications toolbox's range
+%     function.
+%       -- Thank you Colton Cagle for finding this bug!
+%   - Added a logic statement prior to calculating the mean of final
+%     histories.  Versions of MATLAB prior to R2020a use 'nanmean',
+%     versions R2020b or newer use 'mean' with the added flag of
+%     'omitmissing'
+%       -- Also thank you to Colton Cagle for finding this bug!
+%
 % ============================ (October 2, 2023) ===========================
 %  Added:
 %   - Advanced user options for colormap choice and baseline filtering
@@ -1044,7 +1057,7 @@ parfor i = 1:in
     zHam{i}  = single(zHam{i});
     zB{i}    = single(zB{i});
     zHann{i} = single(zHann{i});
-    % FP16 Option:  lead to gaps in heatmap
+    % FP16 Option:  tested, it is faster, but creates gaps in heatmap
     %zHam{i}  = half(zHam{i});
     %zB{i}    = half(zB{i});
     %zHann{i} = half(zHann{i});
@@ -1100,7 +1113,7 @@ parfor i = 1:in
         zHann{i}(UpCropInd(n):end,n)=0;
         zHann{i}(1:LowCropInd(n),n)=0;
         %{
-        % Option to make -60 dB instead
+        % Option to make -60 dB instead of zero
         zHam{i}(UpCropInd(n):end,n)=1e-6;
         zHam{i}(1:LowCropInd(n),n)=1e-6;
         zB{i}(UpCropInd(n):end,n)=1e-6;
@@ -1109,7 +1122,7 @@ parfor i = 1:in
         zHann{i}(1:LowCropInd(n),n)=1e-6;
         %}
         %{
-        % Option to make NaN instead
+        % Option to make NaN instead of zero
         zHam{i}(UpCropInd(n):end,n)=NaN;
         zHam{i}(1:LowCropInd(n),n)=NaN;
         zB{i}(UpCropInd(n):end,n)=NaN;
@@ -1252,9 +1265,9 @@ end
 % ============================ GAUSSIAN METHOD ============================
 % =========================================================================
 % NOTE: This fitting procedure takes 90-99% of total calculation time
-%error('run stopped')
-% Testing out faster Gaussian fitting from Dan Champion's recommendation:
-%  1. locally normalize (get rid of A variable)
+% HiFiPDV2 uses a faster Gaussian fitting method based on recommendations
+%  from Dan Champion:
+%  1. locally normalize (get rid of 'A' variable)
 %  2. Take log of the spectrogram, and fit with quadratic instead of Gauss
 %     -- original fit:     f(x)  = a*exp(-((x-b)/c)^2)
 %     -- new fit:      log(f(x)) = -((x-b)/c)^2
@@ -1342,7 +1355,7 @@ disp('==============================================================');
 disp('================ Extraction Process Finished! ================');
 disp('==============================================================');
 disp(['Total elapsed time: ' num2str(ExtractEnd,'%.2f') ' seconds']);
-disp(['  - Extraction efficiency:  ' num2str(ExtractEnd/range(t{1}./1e3),'%.2f') ' seconds per microsecond of data'])
+disp(['  - Extraction efficiency:  ' num2str(ExtractEnd/((max(t{1})-min(t{1}))./1e3),'%.2f') ' seconds per microsecond of data'])
 disp(['  - Spectrogram production time: ' num2str(SpecTime,'%.2f') ' seconds']);
 disp(['  - Maximum extraction method time: ' num2str(MaxTime,'%.2f') ' seconds']);
 disp(['  - Robust Centroid extraction method time: ' num2str(CentTime,'%.2f') ' seconds']);
@@ -1462,13 +1475,17 @@ end
 HistoryGaussianF(HistoryGaussianF>UpCrop)=NaN;
 HistoryGaussianF(HistoryGaussianF<LowCrop)=NaN;
 
-%HistoryGaussianF(HistoryGaussianF<0.025)=0; % remove any values below ~20 m/s
-
 % Find the mean of these extractions, and use that value for the final
-HistoryMeanF = zeros(1,length(tfinal));
-parfor i = 1:length(tfinal)
-    HistoryMeanF(i) = nanmean([HistoryMaxF(i) HistoryCentroidF(i) ...
-        HistoryGaussianF(i)]);
+% Note that some Gaussian-fit values may be NaN
+%   To calculate mean of a vector with NaNs, we have to use a
+%   version-specific code.
+try
+    % For MATLAB Versions R2023b and newer:
+    HistoryMeanF = mean([HistoryMaxF';HistoryCentroidF';HistoryGaussianF],...
+        'omitmissing');
+catch
+    % For MATLAB versions R2023a and older:
+    HistoryMeanF = nanmean([HistoryMaxF';HistoryCentroidF';HistoryGaussianF]);
 end
 
 
