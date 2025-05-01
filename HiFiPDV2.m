@@ -682,7 +682,7 @@ if exist('SHIFT_SIGN')
 
     % Calculate a SINGLE velocity within the baseline region of interest
     nFreqsB = nFreqs*10; % 10 fold increase for the baseline determination
-    BASEfft.x   = (1:nFreqs).*SampleRate./nFreqsB./1e9; % Convert to GHz
+    BASEfft.x   = (1:nFreqsB).*SampleRate./nFreqsB./1e9; % Convert to GHz
     BASEfft.ham = fft(BaseVoltage.*hamming(length(BaseVoltage)),nFreqsB);  % FFT with hamming window
     BASEfft.blk = fft(BaseVoltage.*blackman(length(BaseVoltage)),nFreqsB); % FFT with blackman window
     BASEfft.han = fft(BaseVoltage.*hann(length(BaseVoltage)),nFreqsB);     % FFT with hann window
