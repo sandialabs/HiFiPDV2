@@ -458,6 +458,10 @@ Signal(:,1) = Signal(:,1)-FirstTimePoint; % nanoseconds, starting at zero
 % Detector voltage is second column of signal, time is first column
 DetectorVoltage = Signal(:,2);
 
+% Make sure there are only finite values in the signal
+DetectorVoltage(isinf(DetectorVoltage))=0;
+DetectorVoltage(isnan(DetectorVoltage))=0;
+
 % Determine the number of data points in a 1 nanosecond duration
 Num1ns = SampleRate/1e9;
 NumDataPointsFor1ns = round(Num1ns); % needs to be integer value
